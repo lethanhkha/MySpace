@@ -411,7 +411,7 @@ function TaskCard({ task, project, onEdit, onDelete, onDragStart, onDragEnd, isD
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className={`bg-white rounded-lg p-3 shadow-sm border border-slate-200 hover:shadow-md cursor-grab active:cursor-grabbing transition-all group ${
+      className={`task-card stagger-item bg-white rounded-lg p-3 shadow-sm border border-slate-200 hover:shadow-md cursor-grab active:cursor-grabbing transition-all group ${
         isDragging ? 'opacity-50' : ''
       }`}
       style={{

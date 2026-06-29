@@ -75,3 +75,74 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-slate-400;
 }
+
+/* ========================
+   ANIMATIONS
+   ======================== */
+
+/* Stagger list items */
+@keyframes staggerIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.stagger-item {
+  animation: staggerIn 0.35s ease-out both;
+}
+
+/* Note cards stagger - nth-child based */
+.note-card:nth-child(1)  { animation-delay: 0ms; }
+.note-card:nth-child(2)  { animation-delay: 50ms; }
+.note-card:nth-child(3)  { animation-delay: 100ms; }
+.note-card:nth-child(4)  { animation-delay: 150ms; }
+.note-card:nth-child(5)  { animation-delay: 200ms; }
+.note-card:nth-child(6)  { animation-delay: 250ms; }
+.note-card:nth-child(n+7){ animation-delay: 300ms; }
+
+/* Stat cards stagger */
+.stat-card:nth-child(1) { animation-delay: 0ms; }
+.stat-card:nth-child(2) { animation-delay: 60ms; }
+.stat-card:nth-child(3) { animation-delay: 120ms; }
+.stat-card:nth-child(4) { animation-delay: 180ms; }
+.stat-card:nth-child(5) { animation-delay: 240ms; }
+
+/* Kanban task cards stagger */
+.task-card:nth-child(1) { animation-delay: 0ms; }
+.task-card:nth-child(2) { animation-delay: 40ms; }
+.task-card:nth-child(3) { animation-delay: 80ms; }
+.task-card:nth-child(4) { animation-delay: 120ms; }
+.task-card:nth-child(n+5){ animation-delay: 160ms; }
+
+/* Card hover lift */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+/* Modal enter animation */
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(-10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes modalOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.96); }
+}
+.modal-enter { animation: modalIn 0.25s ease-out forwards; }
+.modal-leave { animation: modalOut 0.18s ease-in forwards; }
+
+/* Sidebar slide */
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+.sidebar-enter { animation: slideIn 0.25s ease-out forwards; }
+
+/* Pulse for new items */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+.pulse { animation: pulse 1.5s ease-in-out infinite; }

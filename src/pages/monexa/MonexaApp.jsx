@@ -372,7 +372,7 @@ function SummaryCard({ label, value, icon: Icon, color, isNumber }) {
     purple: 'bg-purple-50 text-purple-700 border-purple-200',
   }
   return (
-    <div className={`card p-4 border ${colors[color]}`}>
+    <div className={`stat-card stagger-item card-hover card p-4 border ${colors[color]}`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium opacity-80">{label}</p>

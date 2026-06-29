@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNoteraStore } from '../../stores/noteraStore'
 import {
-  Plus, Search, Trash2, Pin, PinOff, StickyNote, X, Palette, Archive, MoreVertical, Menu, Tag,
+  Plus, Search, Trash2, Pin, PinOff, StickyNote, X, Archive, MoreVertical, Menu, Tag,
 } from 'lucide-react'
 import { formatDateFull, NOTE_COLORS, stripHtml } from '../../lib/helpers'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
@@ -235,13 +235,12 @@ function Sidebar({ counts, activeView, onView }) {
 }
 
 function NoteCard({ note, onClick, onPin, onColorChange, onArchive, onDelete }) {
-  const [showColors, setShowColors] = useState(false)
   const [showMore, setShowMore] = useState(false)
 
   return (
     <div
       onClick={onClick}
-      className="group relative break-words rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
+      className="group note-card stagger-item relative break-words rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
       style={{ backgroundColor: note.color || '#fef3c7', minHeight: '72px' }}
     >
       <div className="p-3 pb-2">
@@ -267,51 +266,40 @@ function NoteCard({ note, onClick, onPin, onColorChange, onArchive, onDelete }) 
         )}
       </div>
 
+      {/* Color strip - always visible */}
+      <div className="flex gap-0.5 px-2 pb-1">
+        {NOTE_COLORS.map((c) => (
+          <button
+            key={c.name}
+            onClick={(e) => { e.stopPropagation(); onColorChange(c.bg) }}
+            className={`w-4 h-4 rounded-full border transition-all flex-shrink-0 ${
+              note.color === c.bg
+                ? 'border-slate-700 scale-125'
+                : 'border-white/50 hover:scale-110'
+            }`}
+            style={{ backgroundColor: c.bg }}
+          />
+        ))}
+      </div>
+
       {/* Footer actions - show on hover */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="flex items-center gap-1 px-2 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="flex items-center gap-0.5 px-2 pb-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
       >
         <button
           onClick={onPin}
-          className="p-1.5 rounded-full hover:bg-black/10 text-slate-700"
+          className="p-1 rounded-full hover:bg-black/10 text-slate-700"
           title={note.is_pinned ? 'Bỏ ghim' : 'Ghim'}
         >
-          {note.is_pinned ? <Pin size={16} className="fill-current" /> : <PinOff size={16} />}
+          {note.is_pinned ? <Pin size={14} className="fill-current" /> : <PinOff size={14} />}
         </button>
-        <div className="relative">
-          <button
-            onClick={() => setShowColors(!showColors)}
-            className="p-1.5 rounded-full hover:bg-black/10 text-slate-700"
-            title="Đổi màu"
-          >
-            <Palette size={16} />
-          </button>
-          {showColors && (
-            <>
-              <div className="fixed inset-0 z-30" onClick={(e) => { e.stopPropagation(); setShowColors(false) }} />
-              <div className="absolute bottom-full left-0 mb-1 bg-white rounded-lg shadow-lg border border-slate-200 p-2 z-40 grid grid-cols-6 gap-1.5">
-                {NOTE_COLORS.map((c) => (
-                  <button
-                    key={c.name}
-                    onClick={(e) => { e.stopPropagation(); onColorChange(c.bg); setShowColors(false) }}
-                    className={`w-6 h-6 rounded-full border-2 transition-all ${
-                      note.color === c.bg ? 'border-slate-700 scale-110' : 'border-white hover:scale-110'
-                    }`}
-                    style={{ backgroundColor: c.bg }}
-                    title={c.name}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
         <button
           onClick={onArchive}
-          className="p-1.5 rounded-full hover:bg-black/10 text-slate-700"
+          className="p-1 rounded-full hover:bg-black/10 text-slate-700"
           title={note.is_archived ? 'Bỏ lưu trữ' : 'Lưu trữ'}
         >
-          <Archive size={16} />
+          <Archive size={14} />
         </button>
         <div className="relative ml-auto">
           <button
@@ -408,7 +396,7 @@ function NoteEditorModal({ note, onClose, onUpdate, onPin, onDelete }) {
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center pt-12 sm:pt-20 p-4">
       <div
-        className={`w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col border-t-4 ${colorBorderMap[color] || 'border-slate-300'}`}
+        className={`modal-enter w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col border-t-4 ${colorBorderMap[color] || 'border-slate-300'}`}
         style={{ backgroundColor: color, maxHeight: '80vh' }}
       >
         {/* Color strip - always visible */}
