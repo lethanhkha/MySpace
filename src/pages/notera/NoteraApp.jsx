@@ -396,66 +396,64 @@ function NoteEditorModal({ note, onClose, onUpdate, onPin, onDelete }) {
     onUpdate({ tags: (note.tags || []).filter((t) => t !== tag) })
   }
 
+  const colorBorderMap = {
+    '#fef3c7': 'border-amber-400',
+    '#d1fae5': 'border-emerald-400',
+    '#dbeafe': 'border-blue-400',
+    '#ede9fe': 'border-violet-400',
+    '#fce7f3': 'border-pink-400',
+    '#ffffff': 'border-slate-300',
+  }
+
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center pt-12 sm:pt-20 p-4">
       <div
-        className="w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col"
+        className={`w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col border-t-4 ${colorBorderMap[color] || 'border-slate-300'}`}
         style={{ backgroundColor: color, maxHeight: '80vh' }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-end px-3 py-2 border-b border-black/10">
-          <div className="flex items-center gap-1 text-sm text-slate-700">
-            <span className="text-xs mr-3 hidden sm:inline">
-              Đã chỉnh sửa: {formatDateFull(note.updated_at)}
-            </span>
-            <div className="relative">
-              <button
-                onClick={() => setShowColors(!showColors)}
-                className="p-1.5 rounded-full hover:bg-black/10"
-                title="Đổi màu"
-              >
-                <Palette size={16} />
-              </button>
-              {showColors && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setShowColors(false) }} />
-                  <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-slate-200 p-2 z-50 grid grid-cols-6 gap-1.5">
-                    {NOTE_COLORS.map((c) => (
-                      <button
-                        key={c.name}
-                        onClick={(e) => { e.stopPropagation(); setColor(c.bg); setShowColors(false) }}
-                        className={`w-7 h-7 rounded-full border-2 ${
-                          color === c.bg ? 'border-slate-700 scale-110' : 'border-white'
-                        }`}
-                        style={{ backgroundColor: c.bg }}
-                        title={c.name}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-            <button onClick={onPin} className="p-1.5 rounded-full hover:bg-black/10" title="Ghim">
-              {note.is_pinned ? <Pin size={16} className="fill-current" /> : <PinOff size={16} />}
-            </button>
+        {/* Color strip - always visible */}
+        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-black/10 bg-black/5">
+          <span className="text-xs text-slate-500 font-medium mr-1">Màu:</span>
+          {NOTE_COLORS.map((c) => (
             <button
-              onClick={() => onUpdate({ is_archived: !note.is_archived })}
-              className="p-1.5 rounded-full hover:bg-black/10"
-              title="Lưu trữ"
-            >
-              <Archive size={16} />
-            </button>
-            <button
-              onClick={() => { onDelete(); onClose() }}
-              className="p-1.5 rounded-full hover:bg-black/10"
-              title="Xóa"
-            >
-              <Trash2 size={16} />
-            </button>
-            <button onClick={onClose} className="p-1.5 rounded-full hover:bg-black/10" title="Đóng">
-              <X size={16} />
-            </button>
-          </div>
+              key={c.name}
+              onClick={() => setColor(c.bg)}
+              className={`w-8 h-8 rounded-full border-2 transition-all ${
+                color === c.bg
+                  ? 'border-slate-700 scale-110 ring-2 ring-offset-1 ring-slate-400'
+                  : 'border-white/60 hover:border-white hover:scale-105'
+              }`}
+              style={{ backgroundColor: c.bg }}
+              title={c.name}
+            />
+          ))}
+        </div>
+
+        {/* Header actions */}
+        <div className="flex items-center justify-end px-3 py-2 gap-1 text-slate-700">
+          <span className="text-xs mr-auto hidden sm:inline">
+            Đã chỉnh sửa: {formatDateFull(note.updated_at)}
+          </span>
+          <button onClick={onPin} className="p-1.5 rounded-full hover:bg-black/10" title="Ghim">
+            {note.is_pinned ? <Pin size={16} className="fill-current" /> : <PinOff size={16} />}
+          </button>
+          <button
+            onClick={() => onUpdate({ is_archived: !note.is_archived })}
+            className="p-1.5 rounded-full hover:bg-black/10"
+            title="Lưu trữ"
+          >
+            <Archive size={16} />
+          </button>
+          <button
+            onClick={() => { onDelete(); onClose() }}
+            className="p-1.5 rounded-full hover:bg-black/10"
+            title="Xóa"
+          >
+            <Trash2 size={16} />
+          </button>
+          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-black/10" title="Đóng">
+            <X size={16} />
+          </button>
         </div>
 
         {/* Body */}
