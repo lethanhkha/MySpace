@@ -289,12 +289,12 @@ function NoteCard({ note, onClick, onPin, onColorChange, onArchive, onDelete }) 
           </button>
           {showColors && (
             <>
-              <div className="fixed inset-0 z-30" onClick={() => setShowColors(false)} />
+              <div className="fixed inset-0 z-30" onClick={(e) => { e.stopPropagation(); setShowColors(false) }} />
               <div className="absolute bottom-full left-0 mb-1 bg-white rounded-lg shadow-lg border border-slate-200 p-2 z-40 grid grid-cols-6 gap-1.5">
                 {NOTE_COLORS.map((c) => (
                   <button
                     key={c.name}
-                    onClick={() => { onColorChange(c.bg); setShowColors(false) }}
+                    onClick={(e) => { e.stopPropagation(); onColorChange(c.bg); setShowColors(false) }}
                     className={`w-6 h-6 rounded-full border-2 transition-all ${
                       note.color === c.bg ? 'border-slate-700 scale-110' : 'border-white hover:scale-110'
                     }`}
@@ -418,12 +418,12 @@ function NoteEditorModal({ note, onClose, onUpdate, onPin, onDelete }) {
               </button>
               {showColors && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowColors(false)} />
+                  <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setShowColors(false) }} />
                   <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-slate-200 p-2 z-50 grid grid-cols-6 gap-1.5">
                     {NOTE_COLORS.map((c) => (
                       <button
                         key={c.name}
-                        onClick={() => { setColor(c.bg); setShowColors(false) }}
+                        onClick={(e) => { e.stopPropagation(); setColor(c.bg); setShowColors(false) }}
                         className={`w-7 h-7 rounded-full border-2 ${
                           color === c.bg ? 'border-slate-700 scale-110' : 'border-white'
                         }`}

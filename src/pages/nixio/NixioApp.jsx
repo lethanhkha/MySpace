@@ -516,7 +516,7 @@ function TaskModal({ open, onClose, onSubmit, editing, projects }) {
       setDescription('')
       setStatus('todo')
       setPriority('medium')
-      setDueDate('')
+      setDueDate(new Date().toISOString().slice(0, 10))
       setProjectId('')
     }
   }, [editing, open])

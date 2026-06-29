@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from './authStore'
+import { useToastStore } from './toastStore'
 
 export const useNoteraStore = create((set, get) => ({
   notes: [],
@@ -60,8 +61,10 @@ export const useNoteraStore = create((set, get) => ({
         notes: [data, ...get().notes],
         selectedNoteId: data.id,
       })
+      useToastStore.getState().success('Đã tạo ghi chú mới')
       return { success: true, data }
     } catch (error) {
+      useToastStore.getState().error('Tạo ghi chú thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -82,6 +85,7 @@ export const useNoteraStore = create((set, get) => ({
       })
       return { success: true, data }
     } catch (error) {
+      useToastStore.getState().error('Lưu ghi chú thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -103,8 +107,10 @@ export const useNoteraStore = create((set, get) => ({
         notes: remaining,
         selectedNoteId: get().selectedNoteId === id ? remaining[0]?.id ?? null : get().selectedNoteId,
       })
+      useToastStore.getState().success('Đã xóa ghi chú')
       return { success: true }
     } catch (error) {
+      useToastStore.getState().error('Xóa ghi chú thất bại')
       return { success: false, error: error.message }
     }
   },

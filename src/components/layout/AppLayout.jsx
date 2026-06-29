@@ -3,6 +3,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { Home, Wallet, CheckSquare, StickyNote, LogOut } from 'lucide-react'
 import { useState } from 'react'
 import EmailConfirmBanner from '../common/EmailConfirmBanner'
+import Toast from '../common/Toast'
 
 export default function AppLayout({ children }) {
   const { user, logout } = useAuthStore()
@@ -133,6 +134,8 @@ export default function AppLayout({ children }) {
 
       {/* Main */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">{children}</main>
+
+      <Toast />
     </div>
   )
 }

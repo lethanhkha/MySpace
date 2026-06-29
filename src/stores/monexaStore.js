@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from './authStore'
+import { useToastStore } from './toastStore'
 
 export const useMonexaStore = create((set, get) => ({
   transactions: [],
@@ -41,8 +42,10 @@ export const useMonexaStore = create((set, get) => ({
         .single()
       if (error) throw error
       set({ wallets: [data, ...get().wallets] })
+      useToastStore.getState().success('Đã tạo ví mới')
       return { success: true, data }
     } catch (error) {
+      useToastStore.getState().error('Tạo ví thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -57,8 +60,10 @@ export const useMonexaStore = create((set, get) => ({
         .single()
       if (error) throw error
       set({ wallets: get().wallets.map((w) => (w.id === id ? data : w)) })
+      useToastStore.getState().success('Đã cập nhật ví')
       return { success: true, data }
     } catch (error) {
+      useToastStore.getState().error('Cập nhật ví thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -68,8 +73,10 @@ export const useMonexaStore = create((set, get) => ({
       const { error } = await supabase.from('monexa_wallets').delete().eq('id', id)
       if (error) throw error
       set({ wallets: get().wallets.filter((w) => w.id !== id) })
+      useToastStore.getState().success('Đã xóa ví')
       return { success: true }
     } catch (error) {
+      useToastStore.getState().error('Xóa ví thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -113,8 +120,10 @@ export const useMonexaStore = create((set, get) => ({
       } else {
         set({ budgets: [data, ...get().budgets] })
       }
+      useToastStore.getState().success('Đã tạo ngân sách')
       return { success: true, data }
     } catch (error) {
+      useToastStore.getState().error('Tạo ngân sách thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -140,8 +149,10 @@ export const useMonexaStore = create((set, get) => ({
       const { error } = await supabase.from('monexa_budgets').delete().eq('id', id)
       if (error) throw error
       set({ budgets: get().budgets.filter((b) => b.id !== id) })
+      useToastStore.getState().success('Đã xóa ngân sách')
       return { success: true }
     } catch (error) {
+      useToastStore.getState().error('Xóa ngân sách thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -207,8 +218,10 @@ export const useMonexaStore = create((set, get) => ({
         .single()
       if (error) throw error
       set({ savingsGoals: [data, ...get().savingsGoals] })
+      useToastStore.getState().success('Đã tạo mục tiêu tiết kiệm')
       return { success: true, data }
     } catch (error) {
+      useToastStore.getState().error('Tạo mục tiêu thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -238,6 +251,12 @@ export const useMonexaStore = create((set, get) => ({
     return get().updateSavingsGoal(id, {
       current_amount: newAmount,
       is_completed: isCompleted,
+    }).then((r) => {
+      if (r.success) {
+        useToastStore.getState().success('Đã nạp tiền tiết kiệm')
+        if (isCompleted) useToastStore.getState().info('Chúc mừng! Mục tiêu đã hoàn thành!')
+      }
+      return r
     })
   },
 
@@ -249,6 +268,9 @@ export const useMonexaStore = create((set, get) => ({
     return get().updateSavingsGoal(id, {
       current_amount: newAmount,
       is_completed: false,
+    }).then((r) => {
+      if (r.success) useToastStore.getState().success('Đã rút tiền từ mục tiêu')
+      return r
     })
   },
 
@@ -257,8 +279,10 @@ export const useMonexaStore = create((set, get) => ({
       const { error } = await supabase.from('monexa_savings_goals').delete().eq('id', id)
       if (error) throw error
       set({ savingsGoals: get().savingsGoals.filter((g) => g.id !== id) })
+      useToastStore.getState().success('Đã xóa mục tiêu tiết kiệm')
       return { success: true }
     } catch (error) {
+      useToastStore.getState().error('Xóa mục tiêu thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -303,8 +327,10 @@ export const useMonexaStore = create((set, get) => ({
       if (transaction.wallet_id) {
         await get()._adjustWalletBalance(transaction.wallet_id, transaction)
       }
+      useToastStore.getState().success('Đã thêm giao dịch')
       return { success: true, data }
     } catch (error) {
+      useToastStore.getState().error('Thêm giao dịch thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -336,8 +362,10 @@ export const useMonexaStore = create((set, get) => ({
       } else if (data.wallet_id === old?.wallet_id) {
         await get()._adjustWalletBalance(data.wallet_id, data)
       }
+      useToastStore.getState().success('Đã cập nhật giao dịch')
       return { success: true, data }
     } catch (error) {
+      useToastStore.getState().error('Cập nhật giao dịch thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -369,8 +397,10 @@ export const useMonexaStore = create((set, get) => ({
           type: t.type === 'thu_nhap' ? 'chi_tieu' : 'thu_nhap',
         })
       }
+      useToastStore.getState().success('Đã xóa giao dịch')
       return { success: true }
     } catch (error) {
+      useToastStore.getState().error('Xóa giao dịch thất bại')
       return { success: false, error: error.message }
     }
   },

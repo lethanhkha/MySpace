@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from './authStore'
+import { useToastStore } from './toastStore'
 
 export const useNixioStore = create((set, get) => ({
   tasks: [],
@@ -39,8 +40,10 @@ export const useNixioStore = create((set, get) => ({
         .single()
       if (error) throw error
       set({ projects: [data, ...get().projects] })
+      useToastStore.getState().success('Đã tạo dự án mới')
       return { success: true, data }
     } catch (error) {
+      useToastStore.getState().error('Tạo dự án thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -66,8 +69,10 @@ export const useNixioStore = create((set, get) => ({
       const { error } = await supabase.from('nixio_projects').delete().eq('id', id)
       if (error) throw error
       set({ projects: get().projects.filter((p) => p.id !== id) })
+      useToastStore.getState().success('Đã xóa dự án')
       return { success: true }
     } catch (error) {
+      useToastStore.getState().error('Xóa dự án thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -121,8 +126,10 @@ export const useNixioStore = create((set, get) => ({
 
       if (error) throw error
       set({ tasks: [data, ...get().tasks] })
+      useToastStore.getState().success('Đã thêm task mới')
       return { success: true, data }
     } catch (error) {
+      useToastStore.getState().error('Thêm task thất bại')
       return { success: false, error: error.message }
     }
   },
@@ -160,8 +167,10 @@ export const useNixioStore = create((set, get) => ({
       set({
         tasks: get().tasks.filter((t) => t.id !== id),
       })
+      useToastStore.getState().success('Đã xóa task')
       return { success: true }
     } catch (error) {
+      useToastStore.getState().error('Xóa task thất bại')
       return { success: false, error: error.message }
     }
   },
