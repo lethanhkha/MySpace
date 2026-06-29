@@ -133,7 +133,6 @@ export default function NoteraApp() {
                         note={n}
                         onClick={() => handleCardClick(n)}
                         onPin={() => togglePin(n.id)}
-                        onColorChange={(c) => updateNote(n.id, { color: c })}
                         onArchive={() => updateNote(n.id, { is_archived: !n.is_archived })}
                         onDelete={() => setConfirmId(n.id)}
                       />
@@ -157,7 +156,6 @@ export default function NoteraApp() {
                         note={n}
                         onClick={() => handleCardClick(n)}
                         onPin={() => togglePin(n.id)}
-                        onColorChange={(c) => updateNote(n.id, { color: c })}
                         onArchive={() => updateNote(n.id, { is_archived: !n.is_archived })}
                         onDelete={() => setConfirmId(n.id)}
                       />
@@ -234,7 +232,7 @@ function Sidebar({ counts, activeView, onView }) {
   )
 }
 
-function NoteCard({ note, onClick, onPin, onColorChange, onArchive, onDelete }) {
+function NoteCard({ note, onClick, onPin, onArchive, onDelete }) {
   const [showMore, setShowMore] = useState(false)
 
   return (
@@ -264,22 +262,6 @@ function NoteCard({ note, onClick, onPin, onColorChange, onArchive, onDelete }) 
             ))}
           </div>
         )}
-      </div>
-
-      {/* Color strip - always visible */}
-      <div className="flex gap-0.5 px-2 pb-1">
-        {NOTE_COLORS.map((c) => (
-          <button
-            key={c.name}
-            onClick={(e) => { e.stopPropagation(); onColorChange(c.bg) }}
-            className={`w-4 h-4 rounded-full border transition-all flex-shrink-0 ${
-              note.color === c.bg
-                ? 'border-slate-700 scale-125'
-                : 'border-white/50 hover:scale-110'
-            }`}
-            style={{ backgroundColor: c.bg }}
-          />
-        ))}
       </div>
 
       {/* Footer actions - show on hover */}
