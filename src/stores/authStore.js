@@ -67,8 +67,15 @@ export const useAuthStore = create((set, get) => ({
         })
       }
 
-      set({ user: data.user, session: data.session, loading: false })
-      return { success: true }
+      // Nếu Supabase bật "Confirm email", session sẽ null
+      // Nếu tắt, session có sẵn → vào app luôn
+      const needsEmailConfirm = !data.session
+      set({
+        user: data.user,
+        session: data.session,
+        loading: false
+      })
+      return { success: true, needsEmailConfirm }
     } catch (error) {
       set({ error: error.message, loading: false })
       return { success: false, error: error.message }
@@ -96,6 +103,43 @@ export const useAuthStore = create((set, get) => ({
       return { success: true }
     } catch (error) {
       set({ error: error.message, loading: false })
+      return { success: false, error: error.message }
+    }
+  },
+
+  // Gửi lại email xác nhận
+  resendConfirmation: async () => {
+    const currentUser = get().user
+    if (!currentUser?.email) return { success: false, error: 'Chưa có email' }
+    set({ loading: true, error: null })
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: currentUser.email,
+      })
+      if (error) throw error
+      set({ loading: false })
+      return { success: true }
+    } catch (error) {
+      set({ error: error.message, loading: false })
+      return { success: false, error: error.message }
+    }
+  },
+
+  // Kiểm tra email đã xác nhận chưa
+  isEmailConfirmed: () => {
+    const { user } = get()
+    return !!user?.email_confirmed_at
+  },
+
+  // Refresh user (gọi sau khi click link xác nhận)
+  refreshUser: async () => {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (error) throw error
+      set({ user })
+      return { success: true }
+    } catch (error) {
       return { success: false, error: error.message }
     }
   },

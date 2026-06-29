@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
+import { supabase } from '../lib/supabase'
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
 
 export default function Register() {
@@ -12,6 +13,10 @@ export default function Register() {
   const [confirmPwd, setConfirmPwd] = useState('')
   const [showPwd, setShowPwd] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState('')
+  const [resending, setResending] = useState(false)
+  const [resendMessage, setResendMessage] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -26,10 +31,64 @@ export default function Register() {
     }
     const result = await register(email, password, fullName)
     if (result.success) {
-      navigate('/hub', { replace: true })
+      if (result.needsEmailConfirm) {
+        setRegisteredEmail(email)
+        setSuccess(true)
+      } else {
+        navigate('/hub', { replace: true })
+      }
     } else {
       setError(result.error)
     }
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 text-center">
+            <div className="inline-flex w-14 h-14 bg-amber-100 rounded-2xl items-center justify-center mb-4">
+              <Mail size={28} className="text-amber-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900 mb-2">Kiểm tra email của bạn</h1>
+            <p className="text-slate-600 mb-1">
+              Chúng tôi đã gửi email xác nhận đến <strong>{registeredEmail}</strong>
+            </p>
+            <p className="text-sm text-slate-500 mb-6">
+              Vui lòng click vào link trong email để kích hoạt tài khoản, sau đó đăng nhập lại.
+            </p>
+            <div className="space-y-2">
+              <button
+                onClick={async () => {
+                  setResending(true)
+                  setResendMessage('')
+                  const { error } = await supabase.auth.resend({
+                    type: 'signup',
+                    email: registeredEmail,
+                  })
+                  setResending(false)
+                  if (error) setResendMessage('Gửi thất bại: ' + error.message)
+                  else setResendMessage('Đã gửi lại email xác nhận!')
+                }}
+                disabled={resending}
+                className="btn-secondary w-full justify-center"
+              >
+                {resending ? 'Đang gửi...' : 'Gửi lại email xác nhận'}
+              </button>
+              <button
+                onClick={() => navigate('/login')}
+                className="btn-primary w-full justify-center"
+              >
+                Đến trang đăng nhập
+              </button>
+            </div>
+            {resendMessage && (
+              <p className="text-sm text-emerald-600 mt-3">{resendMessage}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

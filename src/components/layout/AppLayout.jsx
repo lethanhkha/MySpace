@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
-import { Home, Wallet, CheckSquare, StickyNote, LogOut, User } from 'lucide-react'
+import { Home, Wallet, CheckSquare, StickyNote, LogOut } from 'lucide-react'
 import { useState } from 'react'
+import EmailConfirmBanner from '../common/EmailConfirmBanner'
 
 export default function AppLayout({ children }) {
   const { user, logout } = useAuthStore()
@@ -25,6 +26,9 @@ export default function AppLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* Email Confirm Banner */}
+      <EmailConfirmBanner />
+
       {/* Header */}
       <header className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -82,6 +86,12 @@ export default function AppLayout({ children }) {
                         {user?.user_metadata?.full_name || 'Người dùng'}
                       </p>
                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                      {!user?.email_confirmed_at && (
+                        <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
+                          Email chưa xác nhận
+                        </p>
+                      )}
                     </div>
                     <button
                       onClick={() => {
