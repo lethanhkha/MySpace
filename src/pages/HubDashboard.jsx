@@ -1,11 +1,14 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import Tilt from 'react-parallax-tilt'
 import { useAuthStore } from '../stores/authStore'
 import { useMonexaStore } from '../stores/monexaStore'
 import { useNixioStore } from '../stores/nixioStore'
 import { useNoteraStore } from '../stores/noteraStore'
 import { Wallet, CheckSquare, StickyNote, ArrowRight, TrendingUp, TrendingDown, ListTodo, FileText } from 'lucide-react'
 import { formatCurrency, getCurrentMonthLabel } from '../lib/helpers'
+import { stagger, rise } from '../lib/motion'
 
 export default function HubDashboard() {
   const { user } = useAuthStore()
@@ -123,11 +126,20 @@ export default function HubDashboard() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+      >
         {quickStats.map((stat) => {
           const Icon = stat.icon
           return (
-            <div key={stat.label} className={`card p-4 ${stat.bg} border-transparent`}>
+            <motion.div
+              key={stat.label}
+              variants={rise}
+              className={`card p-4 ${stat.bg} border-transparent`}
+            >
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium text-slate-500">{stat.label}</p>
@@ -138,38 +150,55 @@ export default function HubDashboard() {
                 </div>
               </div>
               <p className="text-xs text-slate-400 mt-2">{getCurrentMonthLabel()}</p>
-            </div>
+            </motion.div>
           )
         })}
-      </div>
+      </motion.div>
 
       {/* Apps Navigation */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-slate-900">Ứng dụng của bạn</h2>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          animate="show"
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+        >
           {apps.map((app) => {
             const Icon = app.icon
             return (
-              <Link
-                key={app.key}
-                to={app.link}
-                className={`group card p-6 ${app.hoverBorder} hover:-translate-y-1 transition-all duration-200`}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${app.gradient} flex items-center justify-center shadow-md`}>
-                    <Icon size={24} className="text-white" />
-                  </div>
-                  <ArrowRight size={20} className="text-slate-300 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900">{app.title}</h3>
-                <p className="text-sm text-slate-500 font-medium">{app.subtitle}</p>
-                <p className="text-sm text-slate-600 mt-2 leading-relaxed">{app.description}</p>
-              </Link>
+              <motion.div key={app.key} variants={rise}>
+                <Tilt
+                  tiltMaxAngleX={6}
+                  tiltMaxAngleY={6}
+                  scale={1.02}
+                  transitionSpeed={400}
+                  glareEnable
+                  glareMaxOpacity={0.08}
+                  glareColor="#ffffff"
+                  className="rounded-xl"
+                >
+                  <Link
+                    to={app.link}
+                    className={`group card p-6 ${app.hoverBorder} hover:-translate-y-1 transition-all duration-200 block h-full`}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${app.gradient} flex items-center justify-center shadow-md`}>
+                        <Icon size={24} className="text-white" />
+                      </div>
+                      <ArrowRight size={20} className="text-slate-300 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900">{app.title}</h3>
+                    <p className="text-sm text-slate-500 font-medium">{app.subtitle}</p>
+                    <p className="text-sm text-slate-600 mt-2 leading-relaxed">{app.description}</p>
+                  </Link>
+                </Tilt>
+              </motion.div>
             )
           })}
-        </div>
+        </motion.div>
       </div>
     </div>
   )

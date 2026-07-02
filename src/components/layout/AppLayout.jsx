@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
 import { Home, Wallet, CheckSquare, StickyNote, LogOut } from 'lucide-react'
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import EmailConfirmBanner from '../common/EmailConfirmBanner'
 import Toast from '../common/Toast'
 
@@ -133,7 +134,18 @@ export default function AppLayout({ children }) {
       </header>
 
       {/* Main */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">{children}</main>
+      <AnimatePresence mode="wait">
+        <motion.main
+          key={location.pathname}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
+        >
+          {children}
+        </motion.main>
+      </AnimatePresence>
 
       <Toast />
     </div>

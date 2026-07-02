@@ -5,6 +5,8 @@ import {
 } from 'lucide-react'
 import { formatDateFull, NOTE_COLORS, stripHtml } from '../../lib/helpers'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useAnimateList } from '../../hooks/useAnimateList'
 
 export default function NoteraApp() {
   const { notes, loading, fetchNotes, addNote, updateNote, deleteNote, togglePin } =
@@ -15,6 +17,8 @@ export default function NoteraApp() {
   const [editingNote, setEditingNote] = useState(null) // null = editor đóng
   const [confirmId, setConfirmId] = useState(null)
   const [activeView, setActiveView] = useState('notes') // 'notes' | 'archive' | 'trash'
+  const pinnedListRef = useAnimateList()
+  const othersListRef = useAnimateList()
 
   useEffect(() => {
     fetchNotes()
@@ -126,7 +130,7 @@ export default function NoteraApp() {
                   <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-1">
                     Đã ghim
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                  <div ref={pinnedListRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                     {pinned.map((n) => (
                       <NoteCard
                         key={n.id}
@@ -149,7 +153,7 @@ export default function NoteraApp() {
                       Khác
                     </h3>
                   )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                  <div ref={othersListRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                     {others.map((n) => (
                       <NoteCard
                         key={n.id}
@@ -178,19 +182,29 @@ export default function NoteraApp() {
       </button>
 
       {/* Editor Modal */}
-      {editingNote && (
-        <NoteEditorModal
-          note={editingNote}
-          onClose={() => setEditingNote(null)}
-          onUpdate={async (updates) => {
-            await updateNote(editingNote.id, updates)
-            // Cập nhật local để không phải fetch lại
-            setEditingNote({ ...editingNote, ...updates })
-          }}
-          onPin={() => togglePin(editingNote.id)}
-          onDelete={() => setConfirmId(editingNote.id)}
-        />
-      )}
+      <AnimatePresence>
+        {editingNote && (
+          <motion.div
+            key="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <NoteEditorModal
+              note={editingNote}
+              onClose={() => setEditingNote(null)}
+              onUpdate={async (updates) => {
+                await updateNote(editingNote.id, updates)
+                // Cập nhật local để không phải fetch lại
+                setEditingNote({ ...editingNote, ...updates })
+              }}
+              onPin={() => togglePin(editingNote.id)}
+              onDelete={() => setConfirmId(editingNote.id)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <ConfirmDialog
         open={!!confirmId}

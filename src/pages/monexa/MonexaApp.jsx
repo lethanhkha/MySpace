@@ -3,7 +3,7 @@ import { useMonexaStore } from '../../stores/monexaStore'
 import Modal from '../../components/common/Modal'
 import {
   Plus, Search, Edit2, Trash2, TrendingUp, TrendingDown, Wallet,
-  LayoutDashboard, ListChecks, PiggyBank, BarChart3, Target, Minus,
+  LayoutDashboard, ListChecks, PiggyBank, BarChart3, Target, Minus, Coins,
 } from 'lucide-react'
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
@@ -14,6 +14,8 @@ import {
 } from '../../lib/helpers'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import { EmptyState } from '../../components/common/Spinner'
+import CountUp from 'react-countup'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const TYPE_LABELS = { thu_nhap: 'Thu nhập', chi_tieu: 'Chi tiêu' }
 
@@ -62,6 +64,7 @@ export default function MonexaApp() {
   const [filterType, setFilterType] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
   const [search, setSearch] = useState('')
+  const [coinDrop, setCoinDrop] = useState(null) // null | 'income' | 'expense'
   const [confirm, setConfirm] = useState(null) // { id, type }
 
   useEffect(() => {
@@ -189,7 +192,12 @@ export default function MonexaApp() {
         onClose={() => { setTxModalOpen(false); setEditingTx(null) }}
         onSubmit={async (data) => {
           if (editingTx) await updateTransaction(editingTx.id, data)
-          else await addTransaction(data)
+          else {
+            await addTransaction(data)
+            const kind = data.type === 'thu_nhap' ? 'income' : 'expense'
+            setCoinDrop(kind)
+            setTimeout(() => setCoinDrop(null), 900)
+          }
           setTxModalOpen(false); setEditingTx(null)
         }}
         editing={editingTx}
@@ -257,6 +265,27 @@ export default function MonexaApp() {
         }}
         onCancel={() => setConfirm(null)}
       />
+
+      {/* Coin drop animation */}
+      <AnimatePresence>
+        {coinDrop && (
+          <motion.div
+            key="coindrop"
+            initial={{ y: -40, opacity: 0, scale: 0.8 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 60, opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="fixed top-20 right-8 z-[60] pointer-events-none"
+          >
+            <div className="bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+              <Coins size={18} />
+              <span className="text-sm font-semibold">
+                {coinDrop === 'income' ? '+ Thu nhập mới' : '- Chi tiêu mới'}
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -273,15 +302,16 @@ function OverviewTab({ stats, categoryStats, monthlyTrend, wallets, savingsGoals
     <div className="space-y-4">
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <SummaryCard label="Tổng số dư" value={formatCurrency(totalBalance)} icon={Wallet} color="blue" />
-        <SummaryCard label="Thu nhập tháng" value={formatCurrency(stats.totalIncome)} icon={TrendingUp} color="emerald" />
-        <SummaryCard label="Chi tiêu tháng" value={formatCurrency(stats.totalExpense)} icon={TrendingDown} color="red" />
+        <SummaryCard label="Tổng số dư" value={formatCurrency(totalBalance)} icon={Wallet} color="blue" rawNumber={totalBalance} />
+        <SummaryCard label="Thu nhập tháng" value={formatCurrency(stats.totalIncome)} icon={TrendingUp} color="emerald" rawNumber={stats.totalIncome} />
+        <SummaryCard label="Chi tiêu tháng" value={formatCurrency(stats.totalExpense)} icon={TrendingDown} color="red" rawNumber={stats.totalExpense} />
         <SummaryCard
           label="Tiết kiệm đang chạy"
           value={activeSavings}
           icon={PiggyBank}
           color="purple"
           isNumber
+          rawNumber={activeSavings}
         />
       </div>
 
@@ -364,7 +394,7 @@ function OverviewTab({ stats, categoryStats, monthlyTrend, wallets, savingsGoals
   )
 }
 
-function SummaryCard({ label, value, icon: Icon, color, isNumber }) {
+function SummaryCard({ label, value, icon: Icon, color, isNumber, rawNumber }) {
   const colors = {
     emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     red: 'bg-red-50 text-red-700 border-red-200',
@@ -376,7 +406,23 @@ function SummaryCard({ label, value, icon: Icon, color, isNumber }) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium opacity-80">{label}</p>
-          <p className={`font-bold mt-1 ${isNumber ? 'text-3xl' : 'text-xl'}`}>{value}</p>
+          <p className={`font-bold mt-1 ${isNumber ? 'text-3xl' : 'text-xl'}`}>
+            {rawNumber != null ? (
+              isNumber ? (
+                <CountUp end={rawNumber} duration={0.7} preserveValue />
+              ) : (
+                <CountUp
+                  end={rawNumber}
+                  duration={0.7}
+                  preserveValue
+                  decimals={0}
+                  formattingFn={(val) => formatCurrency(Math.round(val))}
+                />
+              )
+            ) : (
+              value
+            )}
+          </p>
         </div>
         <Icon size={28} className="opacity-50" />
       </div>

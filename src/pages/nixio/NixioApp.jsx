@@ -5,6 +5,7 @@ import { Plus, Search, Edit2, Trash2, CheckSquare, Calendar, Flag, MoreVertical,
 import { formatDateFull, PRIORITY_COLORS, PRIORITY_LABELS, STATUS_LABELS } from '../../lib/helpers'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import { EmptyState } from '../../components/common/Spinner'
+import { useAnimateList } from '../../hooks/useAnimateList'
 
 const COLUMNS = [
   { id: 'todo', title: 'Cần làm', accent: 'border-slate-400' },
@@ -44,6 +45,9 @@ export default function NixioApp() {
   const [selectedProjectId, setSelectedProjectId] = useState('all') // 'all' | 'unassigned' | project_id
   const [projectModalOpen, setProjectModalOpen] = useState(false)
   const [editingProject, setEditingProject] = useState(null)
+  const todoRef = useAnimateList()
+  const inProgressRef = useAnimateList()
+  const doneRef = useAnimateList()
 
   useEffect(() => {
     fetchTasks()
@@ -311,6 +315,7 @@ export default function NixioApp() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {COLUMNS.map((col) => {
                 const colTasks = filtered.filter((t) => t.status === col.id)
+                const colRef = col.id === 'todo' ? todoRef : col.id === 'in_progress' ? inProgressRef : doneRef
                 return (
                   <div
                     key={col.id}
@@ -324,7 +329,7 @@ export default function NixioApp() {
                         <span className="ml-2 text-slate-400">({colTasks.length})</span>
                       </h3>
                     </div>
-                    <div className="space-y-2">
+                    <div ref={colRef} className="space-y-2">
                       {colTasks.map((task) => {
                         const proj = projects.find((p) => p.id === task.project_id)
                         return (
@@ -434,9 +439,13 @@ function TaskCard({ task, project, onEdit, onDelete, onDragStart, onDragEnd, isD
               {project.name}
             </div>
           )}
-          <h4 className="font-medium text-slate-900 text-sm leading-snug">{task.title}</h4>
+          <h4 className={`font-medium text-slate-900 text-sm leading-snug transition-all duration-200 ${task.status === 'done' ? 'line-through text-slate-400' : ''}`}>
+            {task.title}
+          </h4>
           {task.description && (
-            <p className="text-xs text-slate-500 mt-1 line-clamp-2">{task.description}</p>
+            <p className={`text-xs mt-1 line-clamp-2 transition-all duration-200 ${task.status === 'done' ? 'line-through text-slate-300' : 'text-slate-500'}`}>
+              {task.description}
+            </p>
           )}
           <div className="flex items-center gap-2 mt-2 flex-wrap">
             <span className={`badge ${priorityColor.bg} ${priorityColor.text}`}>
@@ -502,6 +511,7 @@ function TaskModal({ open, onClose, onSubmit, editing, projects }) {
   const [dueDate, setDueDate] = useState('')
   const [projectId, setProjectId] = useState('')
   const [loading, setLoading] = useState(false)
+  const [shake, setShake] = useState(false)
 
   useEffect(() => {
     if (editing) {
@@ -519,10 +529,16 @@ function TaskModal({ open, onClose, onSubmit, editing, projects }) {
       setDueDate(new Date().toISOString().slice(0, 10))
       setProjectId('')
     }
+    setShake(false)
   }, [editing, open])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!title.trim()) {
+      setShake(true)
+      setTimeout(() => setShake(false), 400)
+      return
+    }
     setLoading(true)
     try {
       await onSubmit({
@@ -547,10 +563,9 @@ function TaskModal({ open, onClose, onSubmit, editing, projects }) {
           </label>
           <input
             type="text"
-            required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="input"
+            className={`input ${shake ? 'animate-shake' : ''}`}
             placeholder="VD: Hoàn thành báo cáo tháng"
           />
         </div>

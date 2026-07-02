@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import animatePlugin from 'tailwindcss-animate'
+
 export default {
   content: [
     "./index.html",
@@ -52,11 +54,6 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
-      animation: {
-        'fade-in': 'fadeIn 0.3s ease-in-out',
-        'slide-up': 'slideUp 0.3s ease-out',
-        'toast-in': 'toastIn 0.3s ease-out',
-      },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
@@ -70,8 +67,24 @@ export default {
           '0%': { transform: 'translateX(100%)', opacity: '0' },
           '100%': { transform: 'translateX(0)', opacity: '1' },
         },
+        shake: {
+          '0%,100%': { transform: 'translateX(0)' },
+          '25%': { transform: 'translateX(-4px)' },
+          '75%': { transform: 'translateX(4px)' },
+        },
+        pop: {
+          '0%': { transform: 'scale(0.9)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.3s ease-in-out',
+        'slide-up': 'slideUp 0.3s ease-out',
+        'toast-in': 'toastIn 0.3s ease-out',
+        shake: 'shake 0.4s ease-in-out',
+        pop: 'pop 0.25s ease-out',
       },
     },
   },
-  plugins: [],
+  plugins: [animatePlugin],
 }
