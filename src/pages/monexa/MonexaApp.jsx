@@ -471,7 +471,7 @@ function TransactionsTab({
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
-          <button onClick={onAdd} className="btn-secondary md:w-auto">
+          <button onClick={onAdd} className="btn-primary md:w-auto">
             <Plus size={16} /> Thêm
           </button>
         </div>
