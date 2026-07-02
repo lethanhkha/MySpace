@@ -14,7 +14,8 @@ import {
 } from '../../lib/helpers'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import { EmptyState } from '../../components/common/Spinner'
-import CountUp from 'react-countup'
+import CountUpRaw from 'react-countup/build/index.js'
+const CountUp = CountUpRaw.default || CountUpRaw
 import { motion, AnimatePresence } from 'framer-motion'
 
 const TYPE_LABELS = { thu_nhap: 'Thu nhập', chi_tieu: 'Chi tiêu' }
